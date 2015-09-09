@@ -7,3 +7,9 @@
 meteor-platform
 autopublish
 insecure
+iron:router
+accounts-base
+accounts-password
+mrt:flash-messages
+twbs:bootstrap
+momentjs:moment
