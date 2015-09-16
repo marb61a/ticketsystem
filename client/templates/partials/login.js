@@ -4,17 +4,80 @@ Template.login.helpers({
 	}
 });
 
-
 Template.login.events({
-    'click .register-link': function(event){
+	'click .register-link': function(event){
 		$('.panel-login').hide();
 		$('.panel-register').fadeIn();
 	},
 	'click .login-link': function(event){
 		$('.panel-register').hide();
 		$('.panel-login').fadeIn();
-	}
+	},
+	'submit .register-form': function(event){
+		var email = event.target.email.value;
+        var password = event.target.password.value;
+        var password2 = event.target.password2.value;
+
+		if (isNotEmpty(email) && 
+			isNotEmpty(password) && 
+			isEmail(email) && 
+			areValidPasswords(password, password2)) {
+		         // Create New User
+		            Accounts.createUser({
+		                email: email,
+		                password: password,
+		                profile: {
+		                    usertype: 'staff'
+		                }
+		            }, function (err) {
+		                if (err) {
+		                    FlashMessages.sendError("There was an error with registration");
+		                } else {
+		                    FlashMessages.sendSuccess("Account Created! You are now logged in");
+		                    Router.go('/');
+		                }
+		            });
+		    }
+            return false;
+	},
+	"submit .login-form": function (event) {
+        // Get Form Values
+        var email = event.target.email.value;
+        var password = event.target.password.value;
+
+        Meteor.loginWithPassword(email, password, function (err) {
+            if (err){
+                event.target.email.value = email;
+                event.target.password.value = password;
+                FlashMessages.sendError(err.reason);
+            } else {
+                FlashMessages.sendSuccess('You are now logged in');
+                Router.go('/');
+            }
+        });
+
+        // Clear form
+        event.target.email.value = "";
+        event.target.email.value = "";
+
+        // Prevent Submit
+        return false;
+    },
+	"submit .logout-form": function (event) {
+        Meteor.logout(function (err) {
+            if (err) {
+                FlashMessages.sendError(err.reason);
+            } else {
+                FlashMessages.sendSuccess('You are now logged out');
+                Router.go('/');
+            }
+        });
+
+        // Prevent Submit
+        return false;
+    }
 });
+
 
 // VALIDATIONS
 
